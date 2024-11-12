@@ -4,13 +4,13 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateOf
+import java.util.Calendar
 
 class SaveValueSettings(
     private val applicationContext: Application
 ) {
     private val prefs: SharedPreferences =
         applicationContext.getSharedPreferences("my_settings_prefs", Context.MODE_PRIVATE)
-
 
 
     var systemTheme = mutableStateOf(prefs.getBoolean("system_theme", true))

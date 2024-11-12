@@ -20,6 +20,7 @@ import com.example.composablepdd.screens.test.func.ColorElementsTest
 import com.example.composablepdd.database.preferences.SaveTabPosition
 import com.example.composablepdd.database.getered.GetTableThemes
 import com.example.composablepdd.database.getered.GetTableTicket
+import com.example.composablepdd.database.preferences.SaveReminder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -112,6 +113,12 @@ object AppModule {
     @Singleton
     fun provideSaveValueSettings(application: Application): SaveValueSettings {
         return SaveValueSettings(application)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSaveReminder(application: Application): SaveReminder {
+        return SaveReminder(application)
     }
 
     @Provides

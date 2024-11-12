@@ -15,6 +15,7 @@ import com.example.composablepdd.screens.test.func.ColorElementsTest
 import com.example.composablepdd.database.preferences.SaveTabPosition
 import com.example.composablepdd.database.getered.GetTableThemes
 import com.example.composablepdd.database.getered.GetTableTicket
+import com.example.composablepdd.database.preferences.SaveReminder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -53,6 +54,9 @@ class MainViewModel @Inject constructor(
     lateinit var getSaveValueSettings: SaveValueSettings
 
     @Inject
+    lateinit var getSaveReminder: SaveReminder
+
+    @Inject
     lateinit var getAppTheme: AppTheme
 
     @Inject
@@ -63,4 +67,5 @@ class MainViewModel @Inject constructor(
 
     @Inject
     lateinit var getBook: Book
+
 }

@@ -37,7 +37,7 @@ fun AnimTextHelp(
     keyResLinks: MutableState<String>,
     mainViewModel: MainViewModel
 ){
-    val links = mainViewModel.getResLinks.getLinks(19)
+    val links = mainViewModel.getResLinks.getLinks(index)
     val annotatedString2 = buildAnnotatedString {
         var startIndex = 0
 

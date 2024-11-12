@@ -6,8 +6,11 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -23,10 +26,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -38,6 +43,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.composablepdd.application.MainViewModel
 import com.example.composablepdd.R
+import com.example.composablepdd.screens.settings.elements.AppThemeSetting
+import com.example.composablepdd.screens.settings.elements.Notification
+import com.example.composablepdd.screens.settings.elements.PopUpReminder
 import com.example.composablepdd.ui.myTheme.AppTheme
 import com.example.composablepdd.screens.settings.elements.TopMenuSettings
 import kotlin.math.max
@@ -70,144 +78,51 @@ fun ScreenSettings(
     val backgroundColor by animateColorAsState(
         targetValue = appTheme.backgroundApp()
     )
+    val isVisiblePopUpReminder = remember { mutableStateOf(false) }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor),
-        state = outerListState,
-        contentPadding = PaddingValues(
-            top = 120.dp,
-            bottom = 90.dp
-        )
+    val blur = when {
+        isVisiblePopUpReminder.value -> 30.dp
+        else -> 0.dp
+    }
+    Box(
+        modifier = Modifier.blur(blur)
     ) {
-        item { AppThemeSetting(appTheme, mainViewModel) }
-    }
-    TopMenuSettings(
-        appTheme = appTheme,
-        decreasingNum = decreasingNum,
-        increasingNum = increasingNum,
-        navController = navController
-    )
-}
-
-@Composable
-fun AppThemeSetting(
-    appTheme: AppTheme,
-    mainViewModel: MainViewModel
-) {
-    val getSaveValueSettings = mainViewModel.getSaveValueSettings
-
-    val isSystemTheme = remember { getSaveValueSettings.systemTheme }
-    LaunchedEffect(isSystemTheme.value) {
-        getSaveValueSettings.saveSystemTheme(isSystemTheme.value)
-    }
-
-    val isDarkMode = remember { getSaveValueSettings.darkMode }
-    LaunchedEffect(isDarkMode.value) {
-        getSaveValueSettings.saveDarkMode(isDarkMode.value)
-    }
-
-    val icon = if(isSystemTheme.value){
-        R.drawable.ic_auto_theme
-    } else {
-        if(isDarkMode.value){
-            R.drawable.ic_dark_theme
-        }else {
-            R.drawable.ic_light_theme
-        }
-    }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize()
-    ) {
-        Row(
-            modifier = Modifier.padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Светлая / Темная",
-                color = appTheme.colorTextApp(),
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontFamily = FontFamily(Font(R.font.font_main_bold)),
-                ),
-                modifier = Modifier
-                    .padding(end = 8.dp)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.ic_circle_24),
-                contentDescription = null,
-                tint = appTheme.colorIconApp(),
-                modifier = Modifier
-                    .size(14.dp)
-                    .padding(end = 8.dp)
-            )
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = null,
-                tint = appTheme.colorIconApp(),
-                modifier = Modifier
-                    .size(18.dp)
-            )
-        }
-        Row(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    start = 30.dp,
-                    end = 20.dp,
-                ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .animateContentSize()
+                .background(backgroundColor)
+                .blur(blur),
+            state = outerListState,
+            contentPadding = PaddingValues(
+                top = 120.dp,
+                bottom = 90.dp
+            )
         ) {
-            Text(
-                text = "Системная тема",
-                color = appTheme.colorTextApp(),
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontFamily = FontFamily(Font(R.font.font_main_bold)),
-                ),
-                modifier = Modifier
-                    .padding(end = 8.dp)
-            )
-            Switch(
-                checked = isSystemTheme.value,
-                onCheckedChange = { isSystemTheme.value = it }
-            )
+            item { AppThemeSetting(appTheme, mainViewModel) }
+            item { Notification(appTheme, isVisiblePopUpReminder, mainViewModel) }
         }
+        TopMenuSettings(
+            appTheme = appTheme,
+            decreasingNum = decreasingNum,
+            increasingNum = increasingNum,
+            navController = navController
+        )
+    }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter
+    ) {
         AnimatedVisibility(
-            visible = !isSystemTheme.value,
-            enter = fadeIn(),
-            exit = fadeOut()
+            visible = isVisiblePopUpReminder.value,
+            enter = slideInVertically(initialOffsetY = { it }),
+            exit = slideOutVertically(targetOffsetY = { it })
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        start = 30.dp,
-                        end = 20.dp,
-                        bottom = 15.dp
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    text = "Темный режим",
-                    color = appTheme.colorTextApp(),
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontFamily = FontFamily(Font(R.font.font_main_bold)),
-                    ),
-                    modifier = Modifier
-                        .padding(end = 8.dp)
-                )
-                Switch(
-                    checked = isDarkMode.value,
-                    onCheckedChange = { isDarkMode.value = it }
-                )
-            }
+            PopUpReminder(
+                isVisible = isVisiblePopUpReminder,
+                mainViewModel = mainViewModel
+            )
         }
     }
 }
+
