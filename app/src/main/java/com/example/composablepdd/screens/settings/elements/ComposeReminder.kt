@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -46,7 +48,7 @@ fun Notification(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 10.dp)
+            .padding()
             .animateContentSize()
     ) {
         Row(
@@ -83,8 +85,15 @@ fun Notification(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    start = 30.dp,
-                    end = 20.dp,
+                    start = 10.dp,
+                    end = 10.dp,
+                )
+                .border(
+                    .3.dp,
+                    appTheme
+                        .colorTextApp()
+                        .copy(.3f),
+                    RoundedCornerShape(15.dp)
                 )
                 .clickable(
                     onClick = { isVisible.value = true },
@@ -102,7 +111,7 @@ fun Notification(
                     fontFamily = FontFamily(Font(R.font.font_main_bold)),
                 ),
                 modifier = Modifier
-                    .padding(end = 8.dp)
+                    .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
             )
             if (!isVisible.value) {
                 NotificationDescription(appTheme, mainViewModel)
@@ -119,7 +128,10 @@ fun NotificationDescription(
     val getSaveReminder = mainViewModel.getSaveReminder
     val index = getSaveReminder.prefs.getInt("reminder_replay", 0)
     val text = getSaveReminder.listReplayItemText[index]
-    Column(horizontalAlignment = Alignment.End) {
+    Column(
+        modifier = Modifier.padding(end = 10.dp, top = 10.dp, bottom = 10.dp),
+        horizontalAlignment = Alignment.End
+    ) {
         Text(
             text = text,
             color = appTheme.colorTextApp().copy(0.5f),
