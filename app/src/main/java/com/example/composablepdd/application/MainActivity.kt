@@ -1,10 +1,13 @@
 package com.example.composablepdd.application
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +24,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -47,7 +51,7 @@ class MainActivity : ComponentActivity() {
                     composable(
                         route = "SETTINGS_SCREEN"
                     ) {
-                        ScreenSettings(navController)
+                        ScreenSettings(navController, this@MainActivity)
                     }
                     composable(
                         route = "REGION_SCREEN"

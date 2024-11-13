@@ -3,12 +3,12 @@ package com.example.composablepdd.database.preferences
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
-import androidx.compose.runtime.mutableIntStateOf
+import com.example.composablepdd.application.reminder.Alarm
 import java.util.Calendar
 
 class SaveReminder(
-    private val applicationContext: Application
+    private val applicationContext: Application,
+    private val alarm: Alarm
 ) {
     private val currentTime = Calendar.getInstance()
     val prefs: SharedPreferences =
@@ -32,6 +32,7 @@ class SaveReminder(
             prefs.edit().putInt("reminder_minute", initialMinute).apply()
             prefs.edit().putInt("reminder_replay", replayItemCheck).apply()
         }
+        setAlarm(replayItemCheck)
     }
 
     fun onClickReplayItem(
@@ -41,5 +42,14 @@ class SaveReminder(
             initialHour = currentTime.get(Calendar.HOUR_OF_DAY)
             initialMinute = currentTime.get(Calendar.MINUTE)
         }
+    }
+    private fun setAlarm(
+        replayItemCheck: Int
+    ){
+        alarm.setAlarm(
+            hour = initialHour,
+            minute = initialMinute,
+            reverse = replayItemCheck
+        )
     }
 }

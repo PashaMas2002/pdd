@@ -21,6 +21,7 @@ import com.example.composablepdd.database.preferences.SaveTabPosition
 import com.example.composablepdd.database.getered.GetTableThemes
 import com.example.composablepdd.database.getered.GetTableTicket
 import com.example.composablepdd.database.preferences.SaveReminder
+import com.example.composablepdd.application.reminder.Alarm
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -117,8 +118,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSaveReminder(application: Application): SaveReminder {
-        return SaveReminder(application)
+    fun provideSaveReminder(application: Application, alarm: Alarm): SaveReminder {
+        return SaveReminder(application, alarm)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlarm(application: Application): Alarm {
+        return Alarm(application)
     }
 
     @Provides

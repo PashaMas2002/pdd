@@ -1,5 +1,6 @@
 package com.example.composablepdd.screens.settings
 
+import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
@@ -25,6 +26,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +55,7 @@ import kotlin.math.max
 @Composable
 fun ScreenSettings(
     navController: NavController,
+    activity: Activity,
     mainViewModel: MainViewModel = hiltViewModel()
 ) {
     val appTheme = mainViewModel.getAppTheme
@@ -120,7 +123,8 @@ fun ScreenSettings(
         ) {
             PopUpReminder(
                 isVisible = isVisiblePopUpReminder,
-                mainViewModel = mainViewModel
+                activity = activity,
+                mainViewModel = mainViewModel,
             )
         }
     }

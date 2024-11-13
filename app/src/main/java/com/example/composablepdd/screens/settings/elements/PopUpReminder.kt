@@ -1,10 +1,15 @@
 package com.example.composablepdd.screens.settings.elements
 
+import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
+import android.app.Application
 import android.app.TimePickerDialog
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import android.widget.NumberPicker
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -57,6 +62,8 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.room.Index
 import com.example.composablepdd.R
 import com.example.composablepdd.application.MainViewModel
@@ -70,10 +77,13 @@ import com.example.composablepdd.ui.theme.Primary
 import com.example.composablepdd.ui.theme.TextLinkColor
 import java.util.Calendar
 
+private const val PERMISSION_REQUEST_CODE = 1000
+
 @Composable
 fun PopUpReminder(
     isVisible: MutableState<Boolean>,
-    mainViewModel: MainViewModel
+    activity: Activity,
+    mainViewModel: MainViewModel,
 ) {
     val appTheme = mainViewModel.getAppTheme
     val replayItemCheck = remember {
@@ -137,6 +147,7 @@ fun PopUpReminder(
                     appTheme = appTheme,
                     saveReminder = mainViewModel.getSaveReminder,
                     replayItemCheck = replayItemCheck,
+                    context = activity,
                     textName = it
                 )
             }
@@ -214,24 +225,27 @@ fun ReminderReplayItem(
     appTheme: AppTheme,
     saveReminder: SaveReminder,
     replayItemCheck: MutableState<Int>,
-    textName: String
+    context: Activity,
+    textName: String,
 ) {
     val font = if (index == replayItemCheck.value) {
         Font(R.font.font_main_bold)
     } else Font(R.font.font_main_light)
 
+    val permissionDenied = remember { mutableStateOf(true) }
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .padding(
-                start = 30.dp,
-                end = 20.dp,
-                bottom = 10.dp
-            )
+            .padding(start = 30.dp, end = 20.dp, bottom = 10.dp)
             .clickable(
                 onClick = {
-                    saveReminder.onClickReplayItem(index)
-                    replayItemCheck.value = index
+                    handleReplayItemClick(
+                        index,
+                        saveReminder,
+                        replayItemCheck,
+                        context,
+                        permissionDenied
+                    )
                 },
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
@@ -239,9 +253,7 @@ fun ReminderReplayItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_circle_24),
                 contentDescription = null,
@@ -284,6 +296,33 @@ fun ReminderReplayItem(
             }
         }
     }
+}
+private fun handleReplayItemClick(
+    index: Int,
+    saveReminder: SaveReminder,
+    replayItemCheck: MutableState<Int>,
+    context: Activity,
+    permissionDenied: MutableState<Boolean>
+) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val notificationPermission = Manifest.permission.POST_NOTIFICATIONS
+        if (ContextCompat.checkSelfPermission(context, notificationPermission) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(context, arrayOf(notificationPermission), PERMISSION_REQUEST_CODE)
+            Toast.makeText(context, "Необходимо разрешение на отправку уведомлений", Toast.LENGTH_SHORT).show()
+            permissionDenied.value = true
+        } else {
+            proceedWithReminder(index, saveReminder, replayItemCheck)
+            permissionDenied.value = false
+        }
+    } else {
+        proceedWithReminder(index, saveReminder, replayItemCheck)
+        permissionDenied.value = false
+    }
+}
+
+private fun proceedWithReminder(index: Int, saveReminder: SaveReminder, replayItemCheck: MutableState<Int>) {
+    saveReminder.onClickReplayItem(index)
+    replayItemCheck.value = index
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
